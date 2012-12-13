@@ -10,5 +10,4 @@ parts/
 *.DS_Store
 *.egg-info
 *.pyc
-slides
-html
+docs/_build
