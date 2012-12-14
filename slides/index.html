@@ -1,0 +1,439 @@
+
+<!DOCTYPE html>
+
+
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>A short introduction to Python packaging &mdash; Packaging talk 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/styles.css" type="text/css" />
+    <link rel="stylesheet" href="_static/single.css" type="text/css" />
+    
+
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/common.js"></script>
+    <script type="text/javascript" src="_static/slides.js"></script>
+    <script type="text/javascript" src="_static/sync.js"></script>
+    <script type="text/javascript" src="_static/controller.js"></script>
+    <script type="text/javascript" src="_static/init.js"></script>
+    <link rel="top" title="Packaging talk 0.1 documentation" href="#" /> 
+  </head>
+  <body>
+
+<section
+   id="slide_container"
+   class='slides layout-regular'>
+
+
+  <article class="slide level-1" id="a-short-introduction-to-python-packaging">
+<h1>A short introduction to Python packaging</h1>
+<p>Laurence Rowe. December 13, 2012.</p>
+<p>Some slides were cribbed from Ian Bicking's presentation:
+<a class="reference external" href="http://svn.colorstudy.com/home/ianb/setuptools-presentation/setuptools-slides.txt">http://svn.colorstudy.com/home/ianb/setuptools-presentation/setuptools-slides.txt</a></p>
+
+</article>
+<article class="slide level-2" id="a-very-brief-history-of-python-packaging">
+<h2>A very brief history of Python packaging</h2>
+</article>
+<article class="slide level-2" id="distutils">
+<h2>Distutils</h2>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">distutils</span></tt> in the standard library</li>
+<li>Old way of packaging and installing packages</li>
+<li>No support for specifying requirements</li>
+</ul>
+</article>
+<article class="slide level-2" id="setuptools">
+<h2>Setuptools</h2>
+<ul class="simple">
+<li>Added support for requirements</li>
+<li>easy_install to download and install from PyPI</li>
+</ul>
+</article>
+<article class="slide level-2" id="distribute">
+<h2>Distribute</h2>
+<ul class="simple">
+<li>Community developed fork of setuptools
+- Setuptools author did not have time to maintain it</li>
+<li>Work on Setuptools seems to have resumed now...
+- Install one or the other not both!
+- Most people seem to have moved to distribute</li>
+</ul>
+</article>
+<article class="slide level-2" id="distutils-2">
+<h2>Distutils 2</h2>
+<ul class="simple">
+<li>Attempt to create a new, cleaned up packaging system for the standard library</li>
+<li>Seems to have stalled...</li>
+</ul>
+</article>
+<article class="slide level-2" id="creating-a-package">
+<h2>Creating a Package</h2>
+<p>Lay your files out like this:</p>
+<div class="highlight-python"><pre>MyPackage/
+    MANIFEST.in
+    setup.py
+    src/
+        mypackage/
+            __init__.py
+            other_stuff.py
+            data/
+              mydata.xml
+            tests/
+    docs/
+    README.rst
+    CHANGES.rst</pre>
+</div>
+</article>
+<article class="slide level-2" id="package-layout">
+<h2>Package Layout</h2>
+<ul class="simple">
+<li>Your &quot;distribution&quot; has a name: <tt class="docutils literal"><span class="pre">MyPackage</span></tt></li>
+<li>Not to be confused with your &quot;package&quot;: <tt class="docutils literal"><span class="pre">mypackage</span></tt> (of course, probably will be confused)</li>
+<li>Packages (and modules) all lower-case by convention</li>
+<li>A distribution can contain multiple top level packages.</li>
+<li>I prefer to put the packages under &quot;src&quot; to maintain a clean Python path when developing.</li>
+<li>Putting tests within the package path lets you test</li>
+</ul>
+</article>
+<article class="slide level-2" id="id1">
+<h2>Package Layout</h2>
+<ul class="simple">
+<li>Documentation and (usually) tests go outside the package</li>
+<li><tt class="docutils literal"><span class="pre">src/mypackage/</span></tt> is all that really gets &quot;installed&quot;</li>
+<li><tt class="docutils literal"><span class="pre">setup.py</span></tt> describes the package</li>
+<li><tt class="docutils literal"><span class="pre">MANIFEST.in</span></tt>, specifies which files to include in the package</li>
+</ul>
+</article>
+<article class="slide level-2" id="setup-py">
+<h2>setup.py</h2>
+<p>A typical <tt class="docutils literal"><span class="pre">setup.py</span></tt>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">setuptools</span> <span class="kn">import</span> <span class="n">setup</span><span class="p">,</span> <span class="n">find_packages</span>
+
+<span class="n">here</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">__file__</span><span class="p">))</span>
+<span class="n">README</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">here</span><span class="p">,</span> <span class="s">&#39;README.rst&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+<span class="n">CHANGES</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">here</span><span class="p">,</span> <span class="s">&#39;CHANGES.rst&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+<span class="n">install_requires</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s">&#39;SQLAlchemy&gt;=0.7&#39;</span><span class="p">,</span>
+    <span class="s">&#39;pyramid&gt;=1.4b1&#39;</span><span class="p">,</span>
+    <span class="s">&#39;setuptools&#39;</span><span class="p">,</span>
+    <span class="p">]</span>
+
+<span class="n">tests_require</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s">&#39;WebTest&#39;</span><span class="p">,</span>
+    <span class="p">]</span>
+
+<span class="o">...</span>
+</pre></div>
+</div>
+</article>
+<article class="slide level-2" id="setup-py-continued">
+<h2>setup.py: continued</h2>
+<div class="highlight-python"><pre>...
+
+setup(
+    name='MyPackage',
+    version='0.1dev',
+    description='An example web app.',
+    long_description=README + '\n\n' + CHANGES,
+    author='Laurence Rowe',
+    author_email='lrowe@stanford.edu',
+    url="http://example.com/mypackage",
+    license="MIT",
+
+...</pre>
+</div>
+</article>
+<article class="slide level-2" id="id2">
+<h2>setup.py: continued</h2>
+<div class="highlight-python"><pre>...
+
+    install_requires=install_requires,
+    packages=find_packages('src'),
+    package_dir={'': 'src'},
+    include_package_data=True,
+    zip_safe=False,
+    tests_require=tests_require,
+    extras_require={
+        'test': tests_require,
+        },
+    entry_points='''
+        [paste.app_factory]
+        main = mypackage:main
+        ''',
+    )</pre>
+</div>
+</article>
+<article class="slide level-2" id="setup-py-an-explanation">
+<h2>setup.py: an explanation</h2>
+<ul class="simple">
+<li>All the metadata goes in <tt class="docutils literal"><span class="pre">setup()</span></tt></li>
+<li>Some of this is used to install the package</li>
+<li>Some is used to create an archive of the package</li>
+<li>Some is used for dependencies</li>
+<li>Some is used for PyPI</li>
+</ul>
+</article>
+<article class="slide level-2" id="setup-py-the-arguments">
+<h2>setup.py: the arguments</h2>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">name</span></tt>:</dt>
+<dd>The name of your distribution.  Don't put spaces in it.  Becomes the name of your archive.</dd>
+<dt><tt class="docutils literal"><span class="pre">version</span></tt>:</dt>
+<dd>The version.  Suffixes like <tt class="docutils literal"><span class="pre">a1</span></tt> and <tt class="docutils literal"><span class="pre">pre5</span></tt> are sorted as you'd expect.</dd>
+<dt><tt class="docutils literal"><span class="pre">description</span></tt>, <tt class="docutils literal"><span class="pre">long_description</span></tt>:</dt>
+<dd>For use by PyPI.  <tt class="docutils literal"><span class="pre">long_description</span></tt> is in restructured-text format. I like to use the README and CHANGES for this.</dd>
+<dt><tt class="docutils literal"><span class="pre">author</span></tt>, <tt class="docutils literal"><span class="pre">author_email</span></tt>, <tt class="docutils literal"><span class="pre">url</span></tt>, <tt class="docutils literal"><span class="pre">license</span></tt>:</dt>
+<dd>Also used by PyPI.</dd>
+</dl>
+</article>
+<article class="slide level-2" id="setup-py-more-arguments">
+<h2>setup.py: more arguments</h2>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">packages</span></tt>:</dt>
+<dd><p class="first">You list <em>all</em> the packages that should be installed, including subpackages, like <tt class="docutils literal"><span class="pre">['mypackage',</span> <span class="pre">...]</span></tt>.</p>
+<p class="last"><tt class="docutils literal"><span class="pre">find_packages()</span></tt> does this for you.  The <tt class="docutils literal"><span class="pre">exclude</span></tt> argument keeps it from auto-detecting things that look like packages.</p>
+</dd>
+<dt><tt class="docutils literal"><span class="pre">include_package_data</span></tt>:</dt>
+<dd>If set to True, this tells setuptools to automatically include any data files it finds inside your package directories, that are either under CVS or Subversion control, or which are specified by your MANIFEST.in file.</dd>
+<dt><tt class="docutils literal"><span class="pre">zip_safe</span></tt>:</dt>
+<dd>A boolean (True or False) flag specifying whether the project can be safely installed and run from a zip file.</dd>
+</dl>
+</article>
+<article class="slide level-2" id="setup-py-requirements">
+<h2>setup.py: requirements</h2>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">install_requires</span></tt>:</dt>
+<dd>This is a list of requirements for this package.  Each is a
+package a string like you would give to <tt class="docutils literal"><span class="pre">easy_install.py</span></tt>.</dd>
+<dt><tt class="docutils literal"><span class="pre">tests_require</span></tt>:</dt>
+<dd>This is a list of requirements for running the tests with <tt class="docutils literal"><span class="pre">setup.py</span> <span class="pre">test</span></tt>. You normally want a better test runner.</dd>
+<dt><tt class="docutils literal"><span class="pre">extras_require</span></tt>:</dt>
+<dd>Optional requirements, installed with <tt class="docutils literal"><span class="pre">MyPackage[extra_name]</span></tt>.</dd>
+</dl>
+<p>Setuptools does not expose <tt class="docutils literal"><span class="pre">tests_require</span></tt>, so make them available as an 'extra' too.</p>
+</article>
+<article class="slide level-2" id="setup-py-package-data">
+<h2>setup.py: package data</h2>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">include_package_data</span></tt>:</dt>
+<dd>If set to True, this tells setuptools to automatically include any data files it finds inside your package directories, that are either under CVS or Subversion control, or which are specified by your MANIFEST.in file.</dd>
+</dl>
+<p>With Git or Mercurial, you should include a MANIFEST.in.</p>
+</article>
+<article class="slide level-2" id="manifest-in">
+<h2>MANIFEST.in</h2>
+<div class="highlight-python"><pre>recursive-include src *
+recursive-include docs *
+include *.rst *.txt *.ini *.cfg *.py *.rb
+global-exclude *.pyc
+global-exclude .DS_Store
+exclude .installed.cfg .mr.developer.cfg
+prune src/*.egg-info
+prune docs/build</pre>
+</div>
+</article>
+<article class="slide level-2" id="isolation">
+<h2>Isolation</h2>
+<p>Be careful not to change any of your system installed packages or things can break!</p>
+</article>
+<article class="slide level-2" id="virtualenv">
+<h2>Virtualenv</h2>
+<p>Creates an independent python for you.</p>
+<div class="highlight-python"><pre>$ sudo easy_install virtualenv
+$ virtualenv myenv --no-site-packages --distribute
+$ cd myenv
+$ source bin/activate  # or just use bin/python directly</pre>
+</div>
+<p>You can choose whether to include any system installed packages.</p>
+</article>
+<article class="slide level-2" id="pip">
+<h2>Pip</h2>
+<p>The new <tt class="docutils literal"><span class="pre">easy_install</span></tt>, included by default with virtualenv.</p>
+<p>Usage:</p>
+<div class="highlight-python"><pre>$ pip install MyPackage
+$ pip freeze &gt; requirements.txt
+$ pip install -r requirements.txt</pre>
+</div>
+<p>Freezing requirements gives you a simple way to create a repeatable installation.</p>
+</article>
+<article class="slide level-2" id="buildout">
+<h2>Buildout</h2>
+<ul class="simple">
+<li>Like Virtualenv and Pip on steroids (though it predates them.)</li>
+<li>Defines a number of <tt class="docutils literal"><span class="pre">parts</span></tt> to build</li>
+<li>Each 'part' is built to a recipe
+- A recipe is simply a python package
+- In the simplest case it just installs some python distributions.
+- More recipes can be found on PyPI by searching for &quot;buildout recipe&quot;
+- Can even download and build other software.</li>
+</ul>
+</article>
+<article class="slide level-2" id="buildout-cfg-a-simple-example">
+<h2>buildout.cfg: A simple example</h2>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">[</span><span class="n">buildout</span><span class="p">]</span>
+<span class="c"># Ignore system installed packages</span>
+<span class="n">include</span><span class="o">-</span><span class="n">site</span><span class="o">-</span><span class="n">packages</span> <span class="o">=</span> <span class="n">false</span>
+<span class="n">parts</span> <span class="o">=</span> <span class="n">mypackage</span>
+
+<span class="c"># Build this part using the ``zc.recipe.egg`` recipe.</span>
+<span class="p">[</span><span class="n">mypackage</span><span class="p">]</span>
+<span class="n">recipe</span> <span class="o">=</span> <span class="n">zc</span><span class="o">.</span><span class="n">recipe</span><span class="o">.</span><span class="n">egg</span>
+<span class="n">eggs</span> <span class="o">=</span> <span class="n">MyPackage</span>
+<span class="n">interpreter</span> <span class="o">=</span> <span class="n">py</span>
+</pre></div>
+</div>
+</article>
+<article class="slide level-2" id="installing-a-buildout">
+<h2>Installing a buildout</h2>
+<p>Download bootstrap.py:</p>
+<div class="highlight-python"><pre>$ cd newproject
+$ wget http://svn.zope.org/*checkout*/zc.buildout/trunk/bootstrap/bootstrap.py</pre>
+</div>
+<p>Run bootstrap with your desired version of Python:</p>
+<div class="highlight-python"><pre>$ python2.7 bootstrap.py --distribute</pre>
+</div>
+<p>Run the buildout:</p>
+<div class="highlight-python"><pre>$ bin/buildout</pre>
+</div>
+<p>Note: moving to GitHub when buildout 2 is released.</p>
+</article>
+<article class="slide level-2" id="buildout-cfg-a-more-complex-example">
+<h2>buildout.cfg: A more complex example</h2>
+<div class="highlight-python"><pre>[buildout]
+# Extensions are one of t
+extensions =
+    buildout.dumppickedversions
+    mr.developer
+extends = versions.cfg
+parts =
+    encoded
+    rubygems
+    compile-css
+    test
+    behave
+
+# Use the package source in this directory
+develop = .
+
+...</pre>
+</div>
+</article>
+<article class="slide level-2" id="buildout-cfg-continued">
+<h2>buildout.cfg: continued</h2>
+<div class="highlight-python"><pre>...
+# The mr.developer extension automates checkout of dependent packages.
+sources-dir = develop
+auto-checkout =
+    behave
+    behaving
+
+[sources]
+# Use my fork until https://github.com/jeamland/behave/pull/102 is merged
+behave = git https://github.com/lrowe/behave.git
+behaving = git https://bitbucket.org/ggozad/behaving.git
+
+...</pre>
+</div>
+</article>
+<article class="slide level-2" id="id3">
+<h2>buildout.cfg: continued</h2>
+<div class="highlight-python"><pre>...
+[encoded]
+recipe = zc.recipe.egg
+eggs =
+    encoded
+    pyramid
+    waitress
+interpreter = py
+
+# Install Ruby gems:
+[rubygems]
+recipe = rubygemsrecipe
+gems =
+    sass
+    compass
+
+# Run a shell command on install
+[compile-css]
+recipe = collective.recipe.cmd
+on_install = true
+on_update = true
+cmds =
+    ${buildout:directory}/bin/compass compile
+
+...</pre>
+</div>
+</article>
+<article class="slide level-2" id="id4">
+<h2>buildout.cfg: continued</h2>
+<div class="highlight-python"><pre>...
+
+# The ``test`` extra dependencies are installed here
+[test]
+recipe = zc.recipe.egg
+eggs =
+    encoded[test]
+    pytest
+# Rename the testrunner to ``test``
+scripts =
+    py.test=test
+
+[behave]
+recipe = zc.recipe.egg
+eggs =
+    behave
+    behaving</pre>
+</div>
+</article>
+<article class="slide level-2" id="versions-cfg">
+<h2>versions.cfg</h2>
+<p>Equivalent to Pip's requirements.txt:</p>
+<div class="highlight-python"><pre>[buildout]
+versions = versions
+
+[versions]
+Chameleon = 2.11
+Mako = 0.7.3
+MarkupSafe = 0.15
+PasteDeploy = 1.5.0
+SQLAlchemy = 0.7.9
+WebOb = 1.2.3
+WebTest = 1.4.3
+collective.recipe.cmd = 0.6
+...</pre>
+</div>
+</article>
+<article class="slide level-2" id="resources">
+<h2>Resources</h2>
+<ul class="simple">
+<li><a class="reference external" href="http://distribute.readthedocs.org/">http://distribute.readthedocs.org/</a></li>
+<li><a class="reference external" href="http://pypi.python.org/pypi/virtualenv">http://pypi.python.org/pypi/virtualenv</a></li>
+<li><a class="reference external" href="http://www.virtualenv.org/">http://www.virtualenv.org/</a></li>
+<li><a class="reference external" href="http://www.pip-installer.org/">http://www.pip-installer.org/</a></li>
+<li><a class="reference external" href="http://www.buildout.org/">http://www.buildout.org/</a></li>
+</ul>
+</article>
+
+
+</section>
+  </body>
+</html>
