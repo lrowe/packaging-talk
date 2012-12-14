@@ -1,13 +1,3 @@
-.installed.cfg
-.mr.developer.cfg
-bin/
-develop/
-develop-eggs/
-downloads/
-eggs/
-extends/
-parts/
 *.DS_Store
-*.egg-info
-*.pyc
-docs/_build
+*.buildinfo
+*.doctrees
