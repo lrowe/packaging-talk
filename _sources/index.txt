@@ -291,7 +291,7 @@ Installing a buildout
 Download bootstrap.py::
 
     $ cd newproject
-    $ wget http://svn.zope.org/*checkout*/zc.buildout/trunk/bootstrap/bootstrap.py
+    $ wget https://raw.github.com/buildout/buildout/1.6.x/bootstrap/bootstrap.py
 
 Run bootstrap with your desired version of Python::
 
@@ -300,8 +300,6 @@ Run bootstrap with your desired version of Python::
 Run the buildout::
 
     $ bin/buildout
-
-Note: moving to GitHub when buildout 2 is released.
 
 buildout.cfg: A more complex example
 ====================================
